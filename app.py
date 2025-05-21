@@ -1,29 +1,14 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from flask_cors import CORS
 import os
 
 app = Flask(__name__)
-CORS(app)  # Allow cross-origin requests from anywhere
+CORS(app)  # allow all origins, so your GitHub Pages can call this API
 
-@app.route('/')
-def home():
-    return "Yo, Flask API is live on Render! 🚀"
-
-@app.route('/api/data', methods=['GET'])
-def get_data():
-    return jsonify({
-        "message": "Hello from Flask backend!",
-        "status": "success"
-    })
-
-@app.route('/api/echo', methods=['POST'])
-def echo():
-    data = request.json
-    return jsonify({
-        "you_sent": data,
-        "status": "echoed"
-    })
+@app.route('/api/data')
+def data():
+    return jsonify({"message": "Hello from Flask backend!", "status": "success"})
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))  # Use Render's port if available
+    port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
