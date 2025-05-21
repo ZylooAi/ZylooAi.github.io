@@ -96,34 +96,37 @@
     const signupTab = document.getElementById("signupTab");
     const loginForm = document.getElementById("loginForm");
     const signupForm = document.getElementById("signupForm");
-
+  
     loginTab.addEventListener("click", () => {
       loginTab.classList.add("tab-active");
       signupTab.classList.remove("tab-active");
       loginForm.classList.remove("hidden");
       signupForm.classList.add("hidden");
     });
-
+  
     signupTab.addEventListener("click", () => {
       signupTab.classList.add("tab-active");
       loginTab.classList.remove("tab-active");
       signupForm.classList.remove("hidden");
       loginForm.classList.add("hidden");
     });
-
+  
     // Supabase Setup
     const supabaseUrl = 'https://okuabkqfcmjevmcjnuzq.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rdWFia3FmY21qZXZtY2pudXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3ODE1OTcsImV4cCI6MjA2MzM1NzU5N30.kxDFBgPkNQKziEcHO3wGcZa1ighe4-g8JWz90ryysPg';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
+  
     // Login
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = loginForm.querySelector("input[type='email']").value;
+      const email = loginForm.querySelector("input[type='email']").value.trim();
       const password = loginForm.querySelector("input[type='password']").value;
-
+  
+      console.log("Trying to log in with:", email);
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
+      console.log("Login response data:", data);
+      console.log("Login response error:", error);
+  
       if (error) {
         alert("Login failed: " + error.message);
       } else {
@@ -131,13 +134,14 @@
         window.location.href = "dashboard.html"; // <-- REDIRECT
       }
     });
-
-    // Signup (NO email confirmation)
+  
+    // Signup (NO email confirmation redirect)
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = signupForm.querySelector("input[type='email']").value;
+      const email = signupForm.querySelector("input[type='email']").value.trim();
       const password = signupForm.querySelector("input[type='password']").value;
-
+  
+      console.log("Trying to sign up with:", email);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -145,9 +149,19 @@
           emailRedirectTo: null,
         },
       });
-
+  
+      console.log("Signup response data:", data);
+      console.log("Signup response error:", error);
+  
       if (error) {
         alert("Signup failed: " + error.message);
+        return;
+      }
+  
+      // Check if user needs email confirmation (user will be null if not confirmed)
+      if (data.user === null) {
+        alert("Signup successful! Please check your email to confirm your account before logging in.");
+        // You can optionally keep signup tab active or switch to login tab here
       } else {
         alert("Signup successful! 🎉 You can now log in.");
         signupTab.classList.remove("tab-active");
@@ -157,5 +171,6 @@
       }
     });
   </script>
+
 </body>
 </html>
