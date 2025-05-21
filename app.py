@@ -5,10 +5,10 @@ import requests
 import jwt
 
 app = Flask(__name__)
-CORS(app)  # allow frontend like GitHub Pages to hit this API
+CORS(app)  # Allow frontend like GitHub Pages to call this API
 
 SUPABASE_URL = 'https://okuabkqfcmjevmcjnuzq.supabase.co'
-SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rdWFia3FmY21qZXZtY2pudXpxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0Nzc4MTU5NywiZXhwIjoyMDYzMzU3NTk3fQ.2rZ3asntNX5R41czyKNs5mypgRj0dCK1eMAJC_QBEz0'  # exposed for demo only
+SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rdWFia3FmY21qZXZtY2pudXpxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0Nzc4MTU5NywiZXhwIjoyMDYzMzU3NTk3fQ.2rZ3asntNX5R41czyKNs5mypgRj0dCK1eMAJC_QBEz0'
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route('/')
@@ -24,7 +24,7 @@ def api_login():
     if not email or not password:
         return jsonify({'error': 'Missing email or password'}), 400
 
-    # Supabase login using REST
+    # Supabase login via REST API
     resp = requests.post(
         f'{SUPABASE_URL}/auth/v1/token?grant_type=password',
         headers={
@@ -45,11 +45,11 @@ def api_login():
     if not access_token:
         return jsonify({'error': 'Login failed'}), 500
 
-    # Decode JWT token to get user ID
+    # Decode JWT to get user ID (sub claim)
     decoded = jwt.decode(access_token, options={"verify_signature": False})
     user_id = decoded.get('sub')
 
-    # Now check activation in DB
+    # Check activation status in user_meta table
     meta = supabase.table('user_meta').select('is_activated').eq('id', user_id).single().execute()
     is_activated = meta.data.get('is_activated') if meta.data else False
 
@@ -69,7 +69,7 @@ def api_signup():
     if not full_name or not email or not password:
         return jsonify({'error': 'Missing required fields'}), 400
 
-    # Call Supabase REST API to sign up user
+    # Supabase signup call (no email verification)
     resp = requests.post(
         f'{SUPABASE_URL}/auth/v1/signup',
         headers={
@@ -82,7 +82,7 @@ def api_signup():
         }
     )
 
-    if resp.status_code != 200 and resp.status_code != 201:
+    if resp.status_code not in [200, 201]:
         return jsonify({'error': 'Signup failed: ' + resp.text}), resp.status_code
 
     signup_data = resp.json()
@@ -92,11 +92,11 @@ def api_signup():
 
     user_id = user.get('id')
 
-    # Insert user_meta record with is_activated = False by default
+    # Insert user_meta with is_activated=False (admin activates later)
     insert_res = supabase.table('user_meta').insert({
         'id': user_id,
         'full_name': full_name,
-        'is_activated': False  # Default to False, admin must activate later
+        'is_activated': False
     }).execute()
 
     if insert_res.error:
