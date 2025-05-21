@@ -127,8 +127,8 @@
       if (error) {
         alert("Login failed: " + error.message);
       } else {
-        alert("Login successful! 🎉");
-        console.log(data);
+        alert("Login successful! 🎉 Redirecting...");
+        window.location.href = "dashboard.html"; // <-- REDIRECT
       }
     });
 
@@ -142,15 +142,18 @@
         email,
         password,
         options: {
-          emailRedirectTo: null, // Skip email verification
+          emailRedirectTo: null,
         },
       });
 
       if (error) {
         alert("Signup failed: " + error.message);
       } else {
-        alert("Signup successful! You are logged in.");
-        console.log(data);
+        alert("Signup successful! 🎉 You can now log in.");
+        signupTab.classList.remove("tab-active");
+        loginTab.classList.add("tab-active");
+        signupForm.classList.add("hidden");
+        loginForm.classList.remove("hidden");
       }
     });
   </script>
