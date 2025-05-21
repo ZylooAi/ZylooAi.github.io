@@ -134,47 +134,37 @@
 
     // Signup (NO email confirmation)
     // Signup (NO email confirmation)
-    signupForm.addEventListener("submit", async (e) => {
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = signupForm.querySelector("input[type='email']").value;
-      const password = signupForm.querySelector("input[type='password']").value;
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: null,
-        },
-      });
-
-      if (error) {
-        console.log("Signup failed: " + error.message);
-        return;
+      const email = loginForm.querySelector("input[type='email']").value;
+      const password = loginForm.querySelector("input[type='password']").value;
+    
+      try {
+        // Call your Flask backend API for login & activation check
+        const res = await fetch('https://zylooai-github-io.onrender.com/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+    
+        if (!res.ok) {
+          alert("Login failed: " + data.error);
+          return;
+        }
+    
+        if (!data.is_activated) {
+          alert("Your account is not activated yet. Contact admin.");
+          return;
+        }
+    
+        alert("Login successful! Redirecting...");
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        alert("Something went wrong: " + err.message);
       }
-
-      const userId = data?.user?.id;
-
-      if (!userId) {
-        alert("User ID not returned during signup 😵‍💫");
-        return;
-      }
-
-      // 👇 Insert into `user_meta` with is_activated = false
-      const { error: metaError } = await supabase
-        .from('user_meta')
-        .insert([{ id: userId, is_activated: false }]);
-
-      if (metaError) {
-        alert("Signup succeeded, but failed to create user_meta row: " + metaError.message);
-      } else {
-        alert("Signup successful! 🎉 You can now log in.");
-      }
-
-      signupTab.classList.remove("tab-active");
-      loginTab.classList.add("tab-active");
-      signupForm.classList.add("hidden");
-      loginForm.classList.remove("hidden");
     });
+
 
   </script>
 </body>
