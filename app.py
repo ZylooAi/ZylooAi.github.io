@@ -23,7 +23,7 @@ def api_login():
     if not email or not password:
         return jsonify({'error': 'Missing email or password'}), 400
 
-    # Supabase login with REST API
+    # Supabase login using REST
     resp = requests.post(
         f'{SUPABASE_URL}/auth/v1/token?grant_type=password',
         headers={
@@ -40,23 +40,25 @@ def api_login():
         return jsonify({'error': 'Invalid login credentials'}), 401
 
     auth_data = resp.json()
-    user = auth_data.get('user')
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
+    access_token = auth_data.get('access_token')
+    if not access_token:
+        return jsonify({'error': 'Login failed'}), 500
 
-    user_id = user['id']
+    # Decode JWT token to get user ID
+    import jwt
+    decoded = jwt.decode(access_token, options={"verify_signature": False})
+    user_id = decoded.get('sub')
 
-    # Check if the user is activated
+    # Now check activation in DB
     meta = supabase.table('user_meta').select('is_activated').eq('id', user_id).single().execute()
-
-    if not meta.data or not meta.data.get('is_activated'):
-        return jsonify({'is_activated': False})
+    is_activated = meta.data.get('is_activated') if meta.data else False
 
     return jsonify({
-        'is_activated': True,
+        'is_activated': is_activated,
         'user_id': user_id,
-        'access_token': auth_data.get('access_token')
+        'access_token': access_token
     })
+
 
 if __name__ == '__main__':
     app.run(debug=True)
