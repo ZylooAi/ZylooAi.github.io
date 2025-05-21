@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from supabase import create_client
 import requests
+import jwt
 
 app = Flask(__name__)
 CORS(app)  # allow frontend like GitHub Pages to hit this API
@@ -45,7 +46,6 @@ def api_login():
         return jsonify({'error': 'Login failed'}), 500
 
     # Decode JWT token to get user ID
-    import jwt
     decoded = jwt.decode(access_token, options={"verify_signature": False})
     user_id = decoded.get('sub')
 
@@ -59,6 +59,50 @@ def api_login():
         'access_token': access_token
     })
 
+@app.route('/api/signup', methods=['POST'])
+def api_signup():
+    data = request.get_json()
+    full_name = data.get('full_name')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not full_name or not email or not password:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    # Call Supabase REST API to sign up user
+    resp = requests.post(
+        f'{SUPABASE_URL}/auth/v1/signup',
+        headers={
+            'apikey': SUPABASE_KEY,
+            'Content-Type': 'application/json'
+        },
+        json={
+            'email': email,
+            'password': password
+        }
+    )
+
+    if resp.status_code != 200 and resp.status_code != 201:
+        return jsonify({'error': 'Signup failed: ' + resp.text}), resp.status_code
+
+    signup_data = resp.json()
+    user = signup_data.get('user')
+    if not user:
+        return jsonify({'error': 'Signup failed: no user data returned'}), 500
+
+    user_id = user.get('id')
+
+    # Insert user_meta record with is_activated = False by default
+    insert_res = supabase.table('user_meta').insert({
+        'id': user_id,
+        'full_name': full_name,
+        'is_activated': False  # Default to False, admin must activate later
+    }).execute()
+
+    if insert_res.error:
+        return jsonify({'error': 'Failed to create user meta: ' + str(insert_res.error)}), 500
+
+    return jsonify({'message': 'Signup successful! Please wait for activation.'})
 
 if __name__ == '__main__':
     app.run(debug=True)
