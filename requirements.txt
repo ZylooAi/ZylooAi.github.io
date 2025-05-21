@@ -3,4 +3,5 @@ flask-cors
 gunicorn
 supabase
 requests
-jwt
+PyJWT
+
