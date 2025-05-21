@@ -133,39 +133,29 @@
     });
 
     // Signup (NO email confirmation)
-    // Signup (NO email confirmation)
-    loginForm.addEventListener("submit", async (e) => {
+    signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = loginForm.querySelector("input[type='email']").value;
-      const password = loginForm.querySelector("input[type='password']").value;
-    
-      try {
-        // Call your Flask backend API for login & activation check
-        const res = await fetch('https://zylooai-github-io.onrender.com/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
-        const data = await res.json();
-    
-        if (!res.ok) {
-          alert("Login failed: " + data.error);
-          return;
-        }
-    
-        if (!data.is_activated) {
-          alert("Your account is not activated yet. Contact admin.");
-          return;
-        }
-    
-        alert("Login successful! Redirecting...");
-        window.location.href = "dashboard.html";
-      } catch (err) {
-        alert("Something went wrong: " + err.message);
+      const email = signupForm.querySelector("input[type='email']").value;
+      const password = signupForm.querySelector("input[type='password']").value;
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: null,
+        },
+      });
+
+      if (error) {
+        alert("Signup failed: " + error.message);
+      } else {
+        alert("Signup successful! 🎉 You can now log in.");
+        signupTab.classList.remove("tab-active");
+        loginTab.classList.add("tab-active");
+        signupForm.classList.add("hidden");
+        loginForm.classList.remove("hidden");
       }
     });
-
-
   </script>
 </body>
 </html>
