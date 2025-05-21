@@ -133,12 +133,12 @@
   
       // Step 2: Flask Activation Check
       try {
-        const res = await fetch('https://zylooai-github-io.onrender.com/', {
+        const res = await fetch('https://zylooai-github-io.onrender.com/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
-  
+          
         const result = await res.json();
   
         if (!res.ok) {
