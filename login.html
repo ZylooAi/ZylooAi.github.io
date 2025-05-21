@@ -90,82 +90,78 @@
   <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- (everything above stays the same) -->
   <script>
     // Tab logic
     const loginTab = document.getElementById("loginTab");
     const signupTab = document.getElementById("signupTab");
     const loginForm = document.getElementById("loginForm");
     const signupForm = document.getElementById("signupForm");
-
+  
     loginTab.addEventListener("click", () => {
       loginTab.classList.add("tab-active");
       signupTab.classList.remove("tab-active");
       loginForm.classList.remove("hidden");
       signupForm.classList.add("hidden");
     });
-
+  
     signupTab.addEventListener("click", () => {
       signupTab.classList.add("tab-active");
       loginTab.classList.remove("tab-active");
       signupForm.classList.remove("hidden");
       loginForm.classList.add("hidden");
     });
-
+  
     // Supabase Setup
     const supabaseUrl = 'https://okuabkqfcmjevmcjnuzq.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rdWFia3FmY21qZXZtY2pudXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3ODE1OTcsImV4cCI6MjA2MzM1NzU5N30.kxDFBgPkNQKziEcHO3wGcZa1ighe4-g8JWz90ryysPg';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-    // Login
+  
+    // Combined Login Handler
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = loginForm.querySelector("input[type='email']").value;
       const password = loginForm.querySelector("input[type='password']").value;
-
+  
+      // Step 1: Supabase Login
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
+  
       if (error) {
-        alert("Login failed: " + error.message);
-      } else {
-        alert("Login successful! 🎉 Redirecting...");
-        window.location.href = "dashboard.html"; // <-- REDIRECT
+        alert("Supabase login failed: " + error.message);
+        return;
       }
-    });
-
-    // Signup (NO email confirmation)
-    // Signup (NO email confirmation)
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = loginForm.querySelector("input[type='email']").value;
-      const password = loginForm.querySelector("input[type='password']").value;
-    
+  
+      // Step 2: Flask Activation Check
       try {
-        // Call your Flask backend API for login & activation check
         const res = await fetch('https://zylooai-github-io.onrender.com/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
-        const data = await res.json();
-    
+  
+        const result = await res.json();
+  
         if (!res.ok) {
-          alert("Login failed: " + data.error);
+          alert("Server error: " + result.error);
           return;
         }
-    
-        if (!data.is_activated) {
+  
+        if (!result.is_activated) {
           alert("Your account is not activated yet. Contact admin.");
           return;
         }
-    
+  
+        // Success
         alert("Login successful! Redirecting...");
         window.location.href = "dashboard.html";
+  
       } catch (err) {
-        alert("Something went wrong: " + err.message);
+        alert("Backend error: " + err.message);
       }
     });
-
-
+  
+    // (signup logic goes here if needed)
   </script>
+
 </body>
 </html>
