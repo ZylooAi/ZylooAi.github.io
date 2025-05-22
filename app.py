@@ -25,13 +25,9 @@ def receive_maps_link():
         if not link or "google.com/maps" not in link:
             return jsonify({'error': 'Invalid or missing Google Maps link'}), 400
 
-        # 🚀 Insert into Supabase table called "maps_links"
-        insert_resp = supabase.table('maps_links').insert({'link': link}).execute()
 
-        if insert_resp.status_code != 201:
-            return jsonify({'error': 'Failed to save link'}), 500
-
-        return jsonify({'message': 'Link received and saved successfully ✅'})
+        # Return the link back in the response too
+        return jsonify({'message': 'Link received and saved successfully ✅', 'link': link})
 
     except Exception as e:
         return jsonify({'error': f'Exception: {str(e)}'}), 500
