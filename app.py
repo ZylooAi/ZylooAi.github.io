@@ -1,99 +1,64 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from supabase import create_client
-import os
-
-# Groq AI import for compound-beta
-from groq import Groq  # assuming the package name and usage; adjust if needed
+from groq import Groq
 
 app = Flask(__name__)
 CORS(app, origins=["https://zylooai.github.io"])
 
-
-# Initialize Groq AI client (using environment variable or hardcoded API key)
-groq = Groq(api_key='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')
-
-def extract_email(text):
-    import re
-    emails = re.findall(r'[\w\.-]+@[\w\.-]+\.\w+', text)
-    return emails[0] if emails else None
+# Your Groq API key (not safe for prod, but here you go)
+GROQ_API_KEY = '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'
+groq_client = Groq(api_key=GROQ_API_KEY)
 
 @app.route('/api/maps-link', methods=['POST', 'OPTIONS'])
 def receive_maps_link():
     if request.method == 'OPTIONS':
         return '', 204
-
+    
     try:
         data = request.get_json()
         link = data.get('link')
-
+        
         if not link or "google.com/maps" not in link:
             return jsonify({'error': 'Invalid or missing Google Maps link'}), 400
-
-        # Call Groq We Search model
-        # The prompt asks the AI to scrape and analyze the business page info.
+        
         prompt = f"""
-        Scrape this Google Maps business page: {link}
-        Extract the following:
-        1. Business name and contact email if available.
-        2. Perform sentiment analysis on the reviews: count how many are good, neutral, and bad.
-        3. List at least 3 commonly mentioned things about the business and count their mentions.
-        Return the result in a structured JSON format.
-        """
+        You are a smart AI assistant. Given this Google Maps business URL:
+        {link}
 
-        # Use the compound-beta model to run the prompt (adjust the method if differs)
-        result = groq.complete(
+        Please provide the following info in JSON format:
+        1. Basic business info: name, contact email (if any), phone number, address.
+        2. Review sentiment analysis: number of good, neutral, bad reviews (assign numbers).
+        3. Top 3 commonly mentioned keywords or topics in reviews with counts or estimates.
+
+        Return the JSON ONLY, no explanations.
+        """
+        
+        completion = groq_client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
             model="compound-beta",
-            prompt=prompt,
-            max_tokens=1000,
-            temperature=0.2,
         )
 
-        # The result is expected to be JSON string, so parse it
+        ai_response = completion.choices[0].message.content
+
         import json
-        output_json = json.loads(result.text)
+        try:
+            business_info = json.loads(ai_response)
+        except json.JSONDecodeError:
+            business_info = {"raw_response": ai_response}
 
-        # Extract fields safely
-        business_name = output_json.get('business_name', 'Unknown Business')
-        contact_email = output_json.get('contact_email', 'No email found')
-
-        sentiment = output_json.get('review_sentiment', {})
-        positive = sentiment.get('positive', 0)
-        neutral = sentiment.get('neutral', 0)
-        negative = sentiment.get('negative', 0)
-
-        common_mentions = output_json.get('common_mentions', {})
-
-        # Save to Supabase
-        supabase.table('business_maps').insert({
-            'link': link,
-            'business_name': business_name,
-            'contact_email': contact_email,
-            'sentiment_positive': positive,
-            'sentiment_neutral': neutral,
-            'sentiment_negative': negative,
-            'keywords': list(common_mentions.keys()),
-            'keyword_counts': common_mentions
-        }).execute()
-
+        # No DB saving, just respond
         return jsonify({
-            'message': 'Business info scraped and saved successfully ✅',
-            'business': {
-                'name': business_name,
-                'contact_email': contact_email,
-            },
-            'review_sentiment': {
-                'positive': positive,
-                'neutral': neutral,
-                'negative': negative,
-            },
-            'common_mentions': common_mentions,
-            'link': link
+            "message": "Link received and info scraped successfully ✅",
+            "data": business_info,
+            "link": link
         })
 
     except Exception as e:
         return jsonify({'error': f'Exception: {str(e)}'}), 500
 
+@app.route('/')
+def index():
+    return "Maps Link API is running! 🗺️"
 
 if __name__ == '__main__':
     app.run(debug=True)
