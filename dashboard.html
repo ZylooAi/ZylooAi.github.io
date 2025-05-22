@@ -116,71 +116,91 @@
     <div class="flex-1 flex flex-col overflow-hidden bg-[#F8FAFC]">
         <!-- Content sections -->
         <div id="reviews" class="flex-1 overflow-y-auto p-6 fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-[#002C5F]">Auto-respond to Reviews</h2>
+            <div class="w-full h-full p-6 bg-white rounded-2xl shadow-md flex flex-col lg:flex-row gap-6">
+              <!-- Left Section with Charts -->
+              <div class="flex flex-col w-full lg:w-1/2 gap-6">
+                <!-- Pie Chart Container -->
+                <div class="bg-white rounded-xl shadow p-4 h-80">
+                  <h2 class="text-[#002C5F] text-lg font-semibold mb-2">Review Sentiment</h2>
+                  <div id="pieChart" class="h-full w-full"></div>
+                </div>
+            
+                <!-- Bar Chart Container -->
+                <div class="bg-white rounded-xl shadow p-4 h-80 overflow-hidden">
+                  <h2 class="text-[#002C5F] text-lg font-semibold mb-2">Common Mentions</h2>
+                  <div id="barChart" class="h-full w-full"></div>
+                </div>
+              </div>
+            
+              <!-- Right Section with Text Boxes -->
+              <div class="flex flex-col w-full lg:w-1/2 gap-6">
+                <!-- Top Text Container -->
+                <div class="flex-1 bg-white rounded-xl shadow p-6">
+                  <h3 class="text-xl font-semibold text-[#002C5F] mb-2">Auto-respond to Reviews</h3>
+                  <p class="text-gray-600">Automatically respond to customer reviews using AI-generated responses. Save time and stay engaged with your audience!</p>
+                </div>
+            
+                <!-- Bottom Text Container -->
+                <div class="flex-1 bg-white rounded-xl shadow p-6">
+                  <h3 class="text-xl font-semibold text-[#002C5F] mb-2">Review Sentiment Insights</h3>
+                  <p class="text-gray-600">Quickly analyze sentiment trends from customer feedback and improve your services based on data-driven insights.</p>
+                </div>
+              </div>
             </div>
             
-            <div class="flex items-center justify-center h-full">
-                                
-                <div class="w-full h-full p-6 bg-white rounded-2xl shadow-md flex flex-row gap-6">
-                  <!-- Left Section with Charts -->
-                  <div class="flex flex-col w-1/2 gap-6">
-                    <!-- Pie Chart Container -->
-                    <div class="flex-1 bg-white rounded-xl shadow p-4">
-                      <h2 class="text-[#002C5F] text-lg font-semibold mb-2">Pie Chart</h2>
-                      <div id="pieChart" class="h-64"></div>
-                    </div>
-                
-                    <!-- Bar Chart Container -->
-                    <div class="flex-1 bg-white rounded-xl shadow p-4">
-                      <h2 class="text-[#002C5F] text-lg font-semibold mb-2">Bar Chart</h2>
-                      <div id="barChart" class="h-64"></div>
-                    </div>
-                  </div>
-                
-                  <!-- Right Section with Text Boxes -->
-                  <div class="flex flex-col w-1/2 gap-6">
-                    <!-- Top Text Container -->
-                    <div class="flex-1 bg-white rounded-xl shadow p-6">
-                      <h3 class="text-xl font-semibold text-[#002C5F] mb-2">Auto-respond to Reviews</h3>
-                      <p class="text-gray-600">Automatically respond to customer reviews using AI-generated responses. Save time and stay engaged with your audience!</p>
-                    </div>
-                
-                    <!-- Bottom Text Container -->
-                    <div class="flex-1 bg-white rounded-xl shadow p-6">
-                      <h3 class="text-xl font-semibold text-[#002C5F] mb-2">Review Sentiment Insights</h3>
-                      <p class="text-gray-600">Quickly analyze sentiment trends from customer feedback and improve your services based on data-driven insights.</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- Include ApexCharts JS if not already -->
-                <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-                <script>
-                  var pieOptions = {
-                    chart: {
-                      type: 'pie'
-                    },
-                    series: [44, 33, 23],
-                    labels: ['Positive', 'Neutral', 'Negative']
-                  };
-                
-                  var barOptions = {
-                    chart: {
-                      type: 'bar'
-                    },
-                    series: [{
-                      name: 'Reviews',
-                      data: [30, 40, 45, 50, 49, 60]
-                    }],
-                    xaxis: {
-                      categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+            <!-- Include ApexCharts -->
+            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+            <script>
+              // Pie Chart
+              var pieOptions = {
+                chart: {
+                  type: 'pie',
+                  height: '100%'
+                },
+                series: [60, 25, 15],
+                labels: ['Positive', 'Neutral', 'Negative']
+              };
+            
+              // Bar Chart
+              var barOptions = {
+                chart: {
+                  type: 'bar',
+                  height: '100%',
+                  toolbar: { show: false }
+                },
+                series: [{
+                  name: 'Mentions',
+                  data: [35, 60, 20, 45, 30]
+                }],
+                xaxis: {
+                  categories: ['Good Food', 'Bad Service', 'Friendly Staff', 'Clean Place', 'Slow Delivery'],
+                  labels: {
+                    style: {
+                      fontSize: '12px'
                     }
-                  };
-                
-                  new ApexCharts(document.querySelector("#pieChart"), pieOptions).render();
-                  new ApexCharts(document.querySelector("#barChart"), barOptions).render();
-                </script>
+                  }
+                },
+                plotOptions: {
+                  bar: {
+                    horizontal: false,
+                    columnWidth: '50%'
+                  }
+                },
+                dataLabels: {
+                  enabled: false
+                },
+                grid: {
+                  padding: {
+                    left: 0,
+                    right: 0
+                  }
+                }
+              };
+            
+              new ApexCharts(document.querySelector("#pieChart"), pieOptions).render();
+              new ApexCharts(document.querySelector("#barChart"), barOptions).render();
+            </script>
+
 
                 
             </div>
