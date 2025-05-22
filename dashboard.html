@@ -201,54 +201,78 @@
             <!-- Include ApexCharts -->
             <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
             <script>
-              // Pie Chart
-              var pieOptions = {
-                chart: {
-                  type: 'pie',
-                  height: '100%'
-                },
-                series: [60, 25, 15],
-                labels: ['Positive', 'Neutral', 'Negative']
-              };
+              const overlay = document.getElementById('loadingOverlay');
+              overlay.style.display = 'block';
             
-              // Bar Chart
-              var barOptions = {
-                chart: {
-                  type: 'bar',
-                  height: '100%',
-                  toolbar: { show: false }
-                },
-                series: [{
-                  name: 'Mentions',
-                  data: [35, 60, 20, 45, 30]
-                }],
-                xaxis: {
-                  categories: ['Good Food', 'Bad Service', 'Friendly Staff', 'Clean Place', 'Slow Delivery'],
-                  labels: {
-                    style: {
-                      fontSize: '12px'
+              fetch('/api/maps-link') // or your full backend URL
+                .then(res => res.json())
+                .then(data => {
+                  console.log("✅ Loaded backend data:", data);
+            
+                  // Parse Pie Chart Data
+                  const pieSeries = [
+                    data.sentiment.positive,
+                    data.sentiment.neutral,
+                    data.sentiment.negative
+                  ];
+            
+                  // Render Pie Chart
+                  new ApexCharts(document.querySelector("#pieChart"), {
+                    chart: {
+                      type: 'pie',
+                      height: '100%'
+                    },
+                    series: pieSeries,
+                    labels: ['Positive', 'Neutral', 'Negative']
+                  }).render();
+            
+                  // Parse Bar Chart Data
+                  const barCategories = Object.keys(data.mentions);
+                  const barSeries = Object.values(data.mentions);
+            
+                  // Render Bar Chart
+                  new ApexCharts(document.querySelector("#barChart"), {
+                    chart: {
+                      type: 'bar',
+                      height: '100%',
+                      toolbar: { show: false }
+                    },
+                    series: [{
+                      name: 'Mentions',
+                      data: barSeries
+                    }],
+                    xaxis: {
+                      categories: barCategories,
+                      labels: {
+                        style: {
+                          fontSize: '12px'
+                        }
+                      }
+                    },
+                    plotOptions: {
+                      bar: {
+                        horizontal: false,
+                        columnWidth: '50%'
+                      }
+                    },
+                    dataLabels: {
+                      enabled: false
+                    },
+                    grid: {
+                      padding: {
+                        left: 0,
+                        right: 0
+                      }
                     }
-                  }
-                },
-                plotOptions: {
-                  bar: {
-                    horizontal: false,
-                    columnWidth: '50%'
-                  }
-                },
-                dataLabels: {
-                  enabled: false
-                },
-                grid: {
-                  padding: {
-                    left: 0,
-                    right: 0
-                  }
-                }
-              };
-            
-              new ApexCharts(document.querySelector("#pieChart"), pieOptions).render();
-              new ApexCharts(document.querySelector("#barChart"), barOptions).render();
+                  }).render();
+                })
+                .catch(err => {
+                  console.error("❌ Error loading data:", err);
+                  alert("Couldn’t load data from the backend.");
+                })
+                .finally(() => {
+                  overlay.style.display = 'none';
+                });
             </script>
 
 
