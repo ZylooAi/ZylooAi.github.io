@@ -15,6 +15,12 @@
     .then(data => {
       console.log('Server response:', data);
       alert(data.message || "Link submitted successfully!");
+
+      if (data.link) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000);
+        document.cookie = `mapsLink=${encodeURIComponent(data.link)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+      }
     })
     .catch(error => {
       console.error('Error submitting link:', error);
