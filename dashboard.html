@@ -1,10 +1,28 @@
 <script>
-    alert("Hey! I need your Google Maps business link 📍");
-    
-    const link = prompt("Paste your Google Maps business link below:");
-    
-    console.log("User entered Google Maps business link:", link);
+  alert("Hey! I need your Google Maps business link 📍");
+
+  const link = prompt("Paste your Google Maps business link below:");
+
+  if (link) {
+    fetch('/api/maps-link', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ link: link })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Server response:', data);
+      alert(data.message || "Link submitted successfully!");
+    })
+    .catch(error => {
+      console.error('Error submitting link:', error);
+      alert("Oops! Something went wrong.");
+    });
+  }
 </script>
+
 <html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
