@@ -1,23 +1,24 @@
 <html lang="en">
   <head>
     <style>
-      /* Full-screen overlay */
+      /* Subtle overlay that covers entire page but less aggressive */
       #loadingOverlay {
-        display: none; /* hidden by default */
+        display: none;
         position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 9999;
+        top: 10px; right: 10px;
+        background: rgba(0, 0, 0, 0.8);
         color: white;
-        font-size: 1.5rem;
-        font-weight: bold;
-        text-align: center;
-        padding-top: 20vh;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        z-index: 10000;
         user-select: none;
+        box-shadow: 0 0 10px #000;
       }
     </style>
     
-    <div id="loadingOverlay">⏳ Fetching business info from AI... Hold tight!</div>
+    <div id="loadingOverlay">⏳ AI is working its magic...</div>
     
     <script>
       alert("Hey! I need your Google Maps business link 📍");
@@ -26,19 +27,16 @@
       const overlay = document.getElementById('loadingOverlay');
     
       if (link) {
-        // Show loading overlay
         overlay.style.display = 'block';
     
         fetch('https://zylooai-github-io.onrender.com/api/maps-link', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ link: link })
         })
         .then(response => response.json())
         .then(data => {
-          console.log('Server response:', data);
+          console.log('Full AI response:', data);  // FULL console log here
           alert(data.message || "Link submitted successfully!");
     
           if (data.link) {
@@ -52,12 +50,12 @@
           alert("Oops! Something went wrong.");
         })
         .finally(() => {
-          // Hide loading overlay no matter what
           overlay.style.display = 'none';
         });
       }
     </script>
-
+    
+    
 
 
     <meta charset="UTF-8">
