@@ -4,4 +4,4 @@ gunicorn
 supabase
 requests
 PyJWT
-
+groq
