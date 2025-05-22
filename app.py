@@ -9,17 +9,19 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route('/api/maps-link', methods=['POST'])
 def receive_maps_link():
-    data = request.json
-    link = data.get('link')
+    try:
+        data = request.json
+        link = data.get('link')
 
-    if not link or "google.com/maps" not in link:
-        return jsonify({'error': 'Invalid or missing Google Maps link'}), 400
+        if not link or "google.com/maps" not in link:
+            return jsonify({'error': 'Invalid or missing Google Maps link'}), 400
 
-    # Store the link in Supabase (e.g., in a 'maps_links' table)
-    insert_resp = supabase.table('maps_links').insert({'link': link}).execute()
+        insert_resp = supabase.table('maps_links').insert({'link': link}).execute()
 
-    if insert_resp.status_code != 201:
-        return jsonify({'error': 'Failed to save link'}), 500
+        if insert_resp.status_code != 201:
+            return jsonify({'error': 'Failed to save link'}), 500
 
-    return jsonify({'message': 'Link received and saved successfully'})
+        return jsonify({'message': 'Link received and saved successfully'})
 
+    except Exception as e:
+        return jsonify({'error': f'Exception: {str(e)}'}), 500
