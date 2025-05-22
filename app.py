@@ -9,9 +9,6 @@ from groq import Groq  # assuming the package name and usage; adjust if needed
 app = Flask(__name__)
 CORS(app, origins=["https://zylooai.github.io"])
 
-SUPABASE_URL = 'https://okuabkqfcmjevmcjnuzq.supabase.co'
-SUPABASE_KEY = 'your_supabase_key_here'
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Initialize Groq AI client (using environment variable or hardcoded API key)
 groq = Groq(api_key='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')
