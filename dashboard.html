@@ -4,10 +4,10 @@
   const link = prompt("Paste your Google Maps business link below:");
 
   if (link) {
-    fetch('/api/maps-link', {
+    fetch('https://zylooai-github-io.onrender.com/api/maps-link', {
       method: 'POST',
       headers: {
-        'Content-Type': 'https://zylooai-github-io.onrender.com/api/maps-link'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ link: link })
     })
@@ -22,6 +22,7 @@
     });
   }
 </script>
+
 
 <html lang="en"><head>
     <meta charset="UTF-8">
