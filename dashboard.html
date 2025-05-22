@@ -1,63 +1,66 @@
+<html>
+<style>
+/* Subtle overlay that covers entire page but less aggressive */
+#loadingOverlay {
+  display: none;
+  position: fixed;
+  top: 10px; right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  z-index: 10000;
+  user-select: none;
+  box-shadow: 0 0 10px #000;
+}
+</style>
+
+<div id="loadingOverlay">⏳ AI is working its magic...</div>
+
+<script>
+alert("Hey! I need your Google Maps business link 📍");
+
+const link = prompt("Paste your Google Maps business link below:");
+const overlay = document.getElementById('loadingOverlay');
+
+if (link) {
+  overlay.style.display = 'block';
+
+  fetch('https://zylooai-github-io.onrender.com/api/maps-link', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ link: link })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Full AI response:', data);  // FULL console log here
+    alert(data.message || "Link submitted successfully!");
+
+    if (data.link) {
+      const expires = new Date();
+      expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000);
+      document.cookie = `mapsLink=${encodeURIComponent(data.link)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+    }
+  })
+  .catch(error => {
+    console.error('Error submitting link:', error);
+    alert("Oops! Something went wrong.");
+  })
+  .finally(() => {
+    overlay.style.display = 'none';
+  });
+}
+</script>
+    
+    
+
+
+</html>
+
 <html lang="en">
   <head>
-    <style>
-      /* Subtle overlay that covers entire page but less aggressive */
-      #loadingOverlay {
-        display: none;
-        position: fixed;
-        top: 10px; right: 10px;
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        z-index: 10000;
-        user-select: none;
-        box-shadow: 0 0 10px #000;
-      }
-    </style>
-    
-    <div id="loadingOverlay">⏳ AI is working its magic...</div>
-    
-    <script>
-      alert("Hey! I need your Google Maps business link 📍");
-    
-      const link = prompt("Paste your Google Maps business link below:");
-      const overlay = document.getElementById('loadingOverlay');
-    
-      if (link) {
-        overlay.style.display = 'block';
-    
-        fetch('https://zylooai-github-io.onrender.com/api/maps-link', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ link: link })
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Full AI response:', data);  // FULL console log here
-          alert(data.message || "Link submitted successfully!");
-    
-          if (data.link) {
-            const expires = new Date();
-            expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000);
-            document.cookie = `mapsLink=${encodeURIComponent(data.link)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
-          }
-        })
-        .catch(error => {
-          console.error('Error submitting link:', error);
-          alert("Oops! Something went wrong.");
-        })
-        .finally(() => {
-          overlay.style.display = 'none';
-        });
-      }
-    </script>
-    
-    
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZylooAi Dashboard</title>
