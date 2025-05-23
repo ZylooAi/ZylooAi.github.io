@@ -201,8 +201,8 @@
             <!-- Include ApexCharts -->
             <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
             <script>
-              const overlay = document.getElementById('loadingOverlay');
-              overlay.style.display = 'block';
+              // const overlay = document.getElementById('loadingOverlay');
+              // overlay.style.display = 'block';
             
               fetch('/api/maps-link') // or your actual backend endpoint
                 .then(res => res.json())
@@ -269,7 +269,7 @@
                   alert("Could not load business insights. Try again later.");
                 })
                 .finally(() => {
-                  overlay.style.display = 'none';
+                  document.getElementById('loadingOverlay').style.display = 'none';
                 });
             </script>
             
