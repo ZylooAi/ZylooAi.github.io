@@ -204,33 +204,30 @@
               const overlay = document.getElementById('loadingOverlay');
               overlay.style.display = 'block';
             
-              fetch('/api/maps-link') // or your full backend URL
+              fetch('/api/maps-link') // or your actual backend endpoint
                 .then(res => res.json())
                 .then(data => {
-                  console.log("✅ Loaded backend data:", data);
+                  console.log("✅ Business Data Loaded:", data);
             
-                  // Parse Pie Chart Data
-                  const pieSeries = [
-                    data.sentiment.positive,
-                    data.sentiment.neutral,
-                    data.sentiment.negative
-                  ];
+                  // === Pie Chart ===
+                  const sentiment = data.review_sentiment;
+                  const pieSeries = [sentiment.good, sentiment.neutral, sentiment.bad];
             
-                  // Render Pie Chart
                   new ApexCharts(document.querySelector("#pieChart"), {
                     chart: {
                       type: 'pie',
                       height: '100%'
                     },
                     series: pieSeries,
-                    labels: ['Positive', 'Neutral', 'Negative']
+                    labels: ['Good', 'Neutral', 'Bad'],
+                    colors: ['#00C49F', '#FFBB28', '#FF605C']
                   }).render();
             
-                  // Parse Bar Chart Data
-                  const barCategories = Object.keys(data.mentions);
-                  const barSeries = Object.values(data.mentions);
+                  // === Bar Chart ===
+                  const keywords = data.top_keywords;
+                  const barCategories = Object.keys(keywords);
+                  const barSeries = Object.values(keywords);
             
-                  // Render Bar Chart
                   new ApexCharts(document.querySelector("#barChart"), {
                     chart: {
                       type: 'bar',
@@ -255,6 +252,7 @@
                         columnWidth: '50%'
                       }
                     },
+                    colors: ['#008FFB'],
                     dataLabels: {
                       enabled: false
                     },
@@ -267,13 +265,14 @@
                   }).render();
                 })
                 .catch(err => {
-                  console.error("❌ Error loading data:", err);
-                  alert("Couldn’t load data from the backend.");
+                  console.error("❌ Failed to fetch review data:", err);
+                  alert("Could not load business insights. Try again later.");
                 })
                 .finally(() => {
                   overlay.style.display = 'none';
                 });
             </script>
+            
 
 
                 
